@@ -1,7 +1,13 @@
 import User from '../models/user.model.js';
 import bcrypt from 'bcrypt';
+import { genToken } from '../utils/generateToken.js';
 
 //Register Controller
+const cookiesOptions = {
+    httpOnly: true,
+    secure: true
+}
+
 export const registerUser = async (req, res)=>{
     try {
         const {name, email, username, password} = req.body;
@@ -29,13 +35,16 @@ export const registerUser = async (req, res)=>{
 
         //Password Security
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        console.log(hashedPassword);
-        
+        const hashedPassword = await bcrypt.hash(password, salt);        
 
         const newUser = await User.create({
             name, username, email, password: hashedPassword
         });
+
+        //jwt token - access token
+        const token = genToken(newUser._id);
+        res.cookie("token", token, cookiesOptions);
+        
 
         res.status(201).json({message: "User Registered", user: newUser});
 
