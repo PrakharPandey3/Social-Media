@@ -1,4 +1,5 @@
 import User from '../models/user.model.js';
+import bcrypt from 'bcrypt';
 
 //Register Controller
 export const registerUser = async (req, res)=>{
@@ -27,13 +28,41 @@ export const registerUser = async (req, res)=>{
         }
 
         //Password Security
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        console.log(hashedPassword);
+        
 
         const newUser = await User.create({
-            name, username, email, password
+            name, username, email, password: hashedPassword
         });
 
         res.status(201).json({message: "User Registered", user: newUser});
 
+
+    } catch (error) {
+        res.status(500).json({message: "Internal Server Error", error: error});
+    }
+}
+
+//Login Controller
+export const loginUser = async (req, res)=>{
+    try{
+        const {email, password} = req.body;
+        const user = await User.findOne({email})
+
+        if(!user){
+            return res.status(404).json({message: "User Not Found"})
+        }
+        
+        const passwordCheck = await bcrypt.compare(password, user.password);
+        console.log(passwordCheck)
+
+        if(!passwordCheck){
+            return res.status(400).json({message: "Wrong Password"});
+        }
+
+        res.status(200).json({message: "User Logged In"});
 
     } catch (error) {
         res.status(500).json({message: "Internal Server Error", error: error});
