@@ -1,12 +1,23 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { axiosInstance } from "../axiosCalls/axios";
 
 function Signup() {
 
     const [form, setForm] = useState({ name: '', username: '', email: '', password: '' });
+
     const handleChange = (e) => {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
-        console.log(form)
+    }
+
+    const handleSubmit = async (e)=>{
+        e.preventDefault();
+        try {
+            await axiosInstance.post('/users/register', form)
+            console.log("User Registered");
+        } catch (error) {
+            console.log(error);
+        }
     }
 
 
@@ -116,6 +127,7 @@ function Signup() {
                         <button
                             type="submit"
                             className="w-full rounded-xl bg-indigo-500 py-3.5 font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-600 hover:shadow-indigo-500/40 active:scale-[0.98]"
+                            onClick={handleSubmit}
                         >
                             Register
                         </button>
