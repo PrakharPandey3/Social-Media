@@ -23,7 +23,7 @@ function Login() {
 
 
             console.log("User Logged In");
-            setUser(user)
+            setUser(user.data.userData)
             navigate('/home');
 
         } catch (error) {
