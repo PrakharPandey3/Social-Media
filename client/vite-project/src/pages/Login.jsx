@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { axiosInstance } from "../axiosCalls/axios";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
 
     const [form, setForm] = useState({email: '', password: '' });
     const [loader, setLoader] = useState(false);
+    const {setUser} = useAuth()
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -15,12 +17,13 @@ function Login() {
     const handleSubmit = async (e)=>{
         e.preventDefault();
         try {
-            await axiosInstance.post('/users/login', form)
+            const user = await axiosInstance.post('/users/login', form)
             //Add all the validation errors
             //Add a loader
 
 
             console.log("User Logged In");
+            setUser(user)
             navigate('/home');
 
         } catch (error) {
