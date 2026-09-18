@@ -7,15 +7,27 @@ function Login() {
 
     const [form, setForm] = useState({email: '', password: '' });
     const [loader, setLoader] = useState(false);
-    const {setUser} = useAuth()
+    const [errorMsg, setErrorMsg] = useState('');
+
+    const {setUser} = useAuth();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+        if(errorMsg) setErrorMsg('');
     }
 
     const handleSubmit = async (e)=>{
         e.preventDefault();
+
+        if (!form.email || !form.password) {
+            setErrorMsg('Please fill in both email and password.')
+            return
+        }
+
+        setLoader(true)
+        setErrorMsg('')
+
         try {
             const user = await axiosInstance.post('/users/login', form)
             //Add all the validation errors
@@ -28,6 +40,11 @@ function Login() {
 
         } catch (error) {
             console.log(error);
+            setErrorMsg(
+                error.response?.data?.message || 'Login failed. Please check your credentials.'
+            )
+        } finally {
+            setLoader(false)
         }
     }
 

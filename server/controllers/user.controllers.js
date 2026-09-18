@@ -5,7 +5,9 @@ import { genToken } from '../utils/generateToken.js';
 // Cookie Options
 const cookiesOptions = {
     httpOnly: true,
-    secure: true
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 10 * 24 * 60 * 60 * 1000
 };
 
 // Register Controller
@@ -149,4 +151,22 @@ export const getUser = async (req, res) => {
         });
     }
 };
+
+export const getUserProfile = async (req, res) => {
+    try {
+        const { username } = req.params
+
+        const user = await User.findOne({ username })
+
+        if (!user) {
+            return res.status(404).json({ message: "User Not Found" })
+        }
+
+        res.status(200).json({ message: "User Found", profileData: user })
+
+
+    } catch (error) {
+        res.status(500).json({ message: 'Internal Server Errorr', error: error })
+    }
+}
 

@@ -1,27 +1,42 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { axiosInstance } from "../axiosCalls/axios";
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { axiosInstance } from '../axiosCalls/axios'
 
 function Signup() {
+    const [form, setForm] = useState({ name: '', username: '', email: '', password: '' })
+    const [loader, setLoader] = useState(false)
+    const [errorMsg, setErrorMsg] = useState('')
 
-    const [form, setForm] = useState({ name: '', username: '', email: '', password: '' });
-    const [loader, setLoader] = useState(false);
+    const navigate = useNavigate()
 
     const handleChange = (e) => {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+        if (errorMsg) setErrorMsg('')
     }
 
-    const handleSubmit = async (e)=>{
-        e.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+
+        // Validation checks
+        if (!form.name || !form.username || !form.email || !form.password) {
+            setErrorMsg('Please fill in all fields.')
+            return
+        }
+
+        setLoader(true)
+        setErrorMsg('')
+
         try {
             await axiosInstance.post('/users/register', form)
-            //Add all the validation errors
-            //Add a loader
-
-
-            console.log("User Registered");
+            console.log("User Registered")
+            navigate('/login')
         } catch (error) {
-            console.log(error);
+            console.log(error)
+            setErrorMsg(
+                error.response?.data?.message || 'Registration failed. Please try again.'
+            )
+        } finally {
+            setLoader(false)
         }
     }
 
@@ -89,7 +104,7 @@ function Signup() {
                             />
                         </div>
 
-                        
+
                         {/* Email */}
                         <div>
                             <label
